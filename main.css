@@ -1,0 +1,102 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    font-family: arial;
+
+}
+
+h1{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+h2{
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#header{
+    background-color: orange;
+    color: white;
+}
+
+#header h1{
+    font-size: 22px;
+    padding: 10px;
+}
+
+#header p{
+    font-size: 18px;
+    padding: 10px;
+}
+
+#internal{
+    margin: 10px 0 10px 10px;
+}
+
+.link {
+  stroke: #464646;
+  stroke-width: 3px;
+}
+
+.node {
+  fill: #464646;
+}
+
+#APPLES, #ORANGES, #PLUMS, #GRAPES{
+    fill: orange;
+}
+
+.Browser{
+    stroke: #525640;
+}
+.Research{
+
+    stroke: #666C50;
+}
+
+.System{
+
+    stroke: #666C50;
+}
+
+.Standards{
+
+    stroke: #666C50;
+}
+
+.Content{
+
+    stroke: #7D8173;
+}
+
+.Documentation{
+
+    stroke: #AAAC9E;
+}
+
+.Engagement{
+
+    stroke: #AAAC9E;
+}
+
+.nodetext{
+    stroke-width: 0px;
+    padding: 2px;
+    font-size: 16px;
+    stroke: none;
+    fill: white;
+}
+
+#copy{
+    width: 800px;
+    height: 38px;
+    background-color: white;
+
+}
+
+svg{
+    border: black solid 1px;
+}

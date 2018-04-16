@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>XR data</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+<div id="container">
+    <div id="header">
+        <h1>FORCE DIRECTED GRAPH</h1>
+        <p>The data in this graph is formatted in a different way. The parent nodes are named, those names are then used by the child nodes as their source.</p>
+        <p>Click on an orange node to find out what's connected to it</p>
+    </div>
+
+    <div id="internal">
+         <div id="cases">
+            <div>
+                <h2 id="subject"></h3>
+                <p id="copy"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script> 
+
+<script>
+function getInterests(name){
+   var datastring = " ";
+        nodeArray.forEach(function(data){
+            data.source.forEach(function(innerData){
+                if(innerData === name){
+                    datastring += data.name + " . ";
+                }
+            });           
+        });
+        return datastring; 
+}
+
+function myGraph() {
+
+    this.addNode = function (id, className, sourceArray) {
+        nodes.push({"id":id, "className": className, "sourceArray":sourceArray});
+        update();
+    }
+
+    this.addLink = function (source, target) {
+        links.push({"source":findNode(source),"target":findNode(target)});
+        update();
+    }
+
+    var findNode = function(id) {
+        for (var i in nodes) {if (nodes[i]["id"] === id) return nodes[i]};
+    }
+
+    var findNodeIndex = function(id) {
+        for (var i in nodes) {if (nodes[i]["id"] === id) return i};
+    }
+
+    var width = 1300,
+        height = 900;
+    var vis = this.vis = d3.select("#cases").append("svg:svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var force = d3.layout.force()
+        .gravity(.05)
+        .distance(400)
+        .charge(-750)
+        .size([width, height]);
+
+    var nodes = force.nodes(),
+        links = force.links();
+
+    d3.selection.prototype.moveToFront = function() {  
+          return this.each(function(){
+            this.parentNode.appendChild(this);
+          });
+        };
+
+    var update = function () {
+
+        var link = vis.selectAll("line.link")
+            .data(links, function(d) { return d.source.id + "-" + d.target.id; });
+
+        link.enter().insert("line")
+            .attr("class", function(d){
+                var sourceName = d.source.id.split(" ")[0];
+                return "link " + sourceName + "";
+            });
+
+        link.exit().remove();
+
+        var node = vis.selectAll("g.node")
+            .data(nodes, function(d) { return d.id;})
+            .each(function(d){
+                d3.select(this).moveToFront();
+            });
+
+        var nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .call(force.drag);
+
+        nodeEnter.append("rect")
+            .attr("class", function(d){
+
+                return "rect " + d.className;
+            })
+            .attr("data-links", function(d){
+                var nodeLinks = "";
+                var sources = d.sourceArray;
+                sources.forEach(function(entry){
+                    nodeLinks += entry + " ";
+                })
+                return nodeLinks;
+            })
+            .attr("id", function(d){
+                return d.id.split(" ")[0];
+            })
+            .attr("title", function(d){return d.id})
+            .attr({ x: 0, y: 0, width: 215, height: 50, fill: '#464646' })
+
+        nodeEnter.append("text")       
+            .each(function (d) {
+            var arr = d.id.split("<");
+            for (i = 0; i < arr.length; i++) {
+                d3.select(this).append("tspan")
+                    .text(arr[i])
+                    .attr("dy", i+10 ? "1.2em" : 0)
+                    .attr("x", 12)
+                    .attr("text-anchor", "start")
+                    .attr("font-family", "arial")
+                    .attr("font-size", "11")
+                    .attr("class", "nodetext");
+                }
+            });
+        node.exit().remove();
+
+        force.on("tick", function() {
+          link.attr("x1", function(d) { return d.source.x; })
+              .attr("y1", function(d) { return d.source.y; })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; });
+
+          node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+
+        force.start();
+    }
+
+    update();
+}
+
+var nodeArray=[
+    {"name":"And not for justice?",  "source":["APPLES", "GRAPES"]},
+    {"name":"I know you all",  "source":["PLUMS"]},
+    {"name":"Forever and a day",  "source":["PLUMS"]},
+    {"name":"My library was dukedom <large enough",  "source":["APPLES"]},
+    {"name":"Order gave each thing view",  "source":["ORANGES", "PLUMS"]},
+    {"name":"Thou art the Mars of <malcontents",  "source":["ORANGES"]},
+    {"name":"This blessed plot, this earth, <this realm, this England",  "source":["ORANGES"]},
+    {"name":"Your wit’s too hot, it <speeds too fast",  "source":["PLUMS"]},
+    {"name":"What a fool honesty is! ",  "source":["GRAPES", "PLUMS"]},
+    {"name":"Harp not on that string",  "source":["GRAPES"]},
+    {"name":"Boldness be my friend",  "source":["APPLES", "GRAPES"]},
+    {"name":"To pluck bright honour from <the pale-faced moon",  "source":["ORANGES", "PLUMS"]},
+];
+
+graph = new myGraph();
+
+graph.addNode("APPLES", "upper", []);
+graph.addNode("ORANGES", "upper", []);
+graph.addNode("PLUMS", "upper", []);
+graph.addNode("GRAPES", "upper",[])
+
+nodeArray.forEach(function(entry){
+        graph.addNode(entry.name, "attached", entry.source);
+        entry.source.forEach(function(entry_2){
+            if (entry_2.length > 0){
+                graph.addLink(entry_2, entry.name);
+            }   
+        })
+});
+
+$(".upper").click(function(){
+    var thisTitle = $(this).attr("title");
+    var thisText = "";
+    var dataElements = document.querySelectorAll("[data-links]")
+
+    Array.prototype.forEach.call(dataElements, function(entry){
+        var str = thisTitle;
+
+        if((entry.outerHTML.indexOf("attached") != -1) & (entry.outerHTML.indexOf(str) != -1)){
+            thisText += entry.getAttribute("title") + ". ";
+        }
+    });
+
+    $("#subject").html(thisTitle);
+    $("#copy").html(thisText);
+});
+
+</script>
+
+</body>
+</html>
